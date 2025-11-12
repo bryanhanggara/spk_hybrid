@@ -3,11 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Student extends Model
+class Student extends Authenticatable
 {
     use HasFactory;
 
@@ -38,5 +38,21 @@ class Student extends Model
     public function spkResults(): HasMany
     {
         return $this->hasMany(SpkResult::class);
+    }
+
+    /**
+     * Get test answers for this student
+     */
+    public function testAnswers(): HasMany
+    {
+        return $this->hasMany(\App\Models\StudentTestAnswer::class);
+    }
+
+    /**
+     * Get the password for authentication (not used, but required by Authenticatable)
+     */
+    public function getAuthPassword()
+    {
+        return null; // We don't use passwords for student authentication
     }
 }

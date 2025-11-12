@@ -8,6 +8,7 @@ use App\Models\AcademicScore;
 use App\Models\InterestSurvey;
 use App\Models\InterviewScore;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class StudentController extends Controller
 {
@@ -222,5 +223,60 @@ class StudentController extends Controller
 
         return redirect()->route('students.show', $student->id)
             ->with('success', 'Pilihan jurusan berhasil disimpan');
+    }
+
+    /**
+     * Dashboard siswa (setelah login)
+     */
+    public function dashboard()
+    {
+        $student = Auth::guard('student')->user();
+        $student->load(['academicScore', 'interestSurvey', 'interviewScore', 'spkResults']);
+        
+        return view('student.dashboard', compact('student'));
+    }
+
+    /**
+     * Tampilkan form angket untuk siswa (student-facing)
+     */
+    public function showQuestionnaire()
+    {
+        $student = Auth::guard('student')->user();
+        
+        return view('student.questionnaire', compact('student'));
+    }
+
+    /**
+     * Simpan hasil angket dari siswa
+     */
+    public function submitQuestionnaire(Request $request)
+    {
+        $student = Auth::guard('student')->user();
+        
+        $request->validate([
+            'answers' => 'required|array|size:20',
+            'answers.*' => 'required|integer|min:1|max:5'
+        ]);
+
+        $answers = $request->input('answers');
+        $totalScore = array_sum($answers);
+
+        $interestSurvey = $student->interestSurvey;
+        if ($interestSurvey) {
+            $interestSurvey->update([
+                'answers' => $answers,
+                'total_score' => $totalScore
+            ]);
+            $message = 'Angket minat berhasil diperbarui';
+        } else {
+            $student->interestSurvey()->create([
+                'answers' => $answers,
+                'total_score' => $totalScore
+            ]);
+            $message = 'Angket minat berhasil disimpan';
+        }
+
+        return redirect()->route('student.dashboard')
+            ->with('success', $message);
     }
 }

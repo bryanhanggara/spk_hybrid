@@ -87,6 +87,10 @@
                             <i class="fas fa-users me-2"></i>
                             Data Siswa
                         </a>
+                        <a class="nav-link {{ request()->routeIs('admin.questions.*') ? 'active' : '' }}" href="{{ route('admin.questions.index', ['subject' => 'mathematics']) }}">
+                            <i class="fas fa-question-circle me-2"></i>
+                            Kelola Soal
+                        </a>
                         <a class="nav-link {{ request()->routeIs('spk.results') ? 'active' : '' }}" href="{{ route('spk.results') }}">
                             <i class="fas fa-chart-bar me-2"></i>
                             Hasil SPK
