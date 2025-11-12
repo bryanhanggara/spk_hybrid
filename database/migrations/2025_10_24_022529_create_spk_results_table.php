@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('spk_results', function (Blueprint $table) {
             $table->id();
             $table->foreignId('student_id')->constrained()->onDelete('cascade');
-            $table->string('recommended_major'); // IPA atau IPS
+            $table->string('recommended_major'); // TKR, TSM, TKJ, AP, atau AK
             $table->decimal('saw_score', 5, 4); // Skor SAW (0-1)
             $table->decimal('vikor_score', 5, 4); // Skor VIKOR (0-1)
             $table->decimal('final_score', 5, 4); // Skor akhir

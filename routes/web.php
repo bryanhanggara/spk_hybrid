@@ -27,4 +27,5 @@ Route::prefix('students')->name('students.')->group(function () {
     Route::post('/{student}/interest', [StudentController::class, 'storeInterest'])->name('interest.store');
     Route::get('/{student}/interview', [StudentController::class, 'interviewForm'])->name('interview');
     Route::post('/{student}/interview', [StudentController::class, 'storeInterview'])->name('interview.store');
+    Route::post('/{student}/major-choice', [StudentController::class, 'storeMajorChoice'])->name('major-choice.store');
 });

@@ -481,3 +481,14 @@ df -h | awk '$5 > 80 {print "Disk space warning: " $0}' || exit 1
 
 Deployment ini memastikan sistem SPK berjalan dengan optimal di lingkungan produksi. Pastikan untuk melakukan testing menyeluruh setelah deployment dan setup monitoring untuk memantau kesehatan aplikasi.
 
+
+
+
+
+
+
+
+
+
+
+

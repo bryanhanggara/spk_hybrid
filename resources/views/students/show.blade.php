@@ -44,6 +44,26 @@
                             </span>
                         </td>
                     </tr>
+                    <tr>
+                        <th>Pilihan Jurusan 1</th>
+                        <td>
+                            @if($student->major_choice_1)
+                                <span class="badge bg-primary">{{ $student->major_choice_1 }}</span>
+                            @else
+                                <span class="text-muted">Belum dipilih</span>
+                            @endif
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Pilihan Jurusan 2</th>
+                        <td>
+                            @if($student->major_choice_2)
+                                <span class="badge bg-secondary">{{ $student->major_choice_2 }}</span>
+                            @else
+                                <span class="text-muted">Belum dipilih</span>
+                            @endif
+                        </td>
+                    </tr>
                 </table>
             </div>
         </div>
@@ -334,6 +354,91 @@
         </div>
     </div>
 </div>
+
+<!-- Pilihan Jurusan Siswa -->
+<div class="row">
+    <div class="col-md-12 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-graduation-cap me-2"></i>Pilihan Jurusan Siswa</h5>
+            </div>
+            <div class="card-body">
+                <form action="{{ route('students.major-choice.store', $student->id) }}" method="POST">
+                    @csrf
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="major_choice_1" class="form-label">
+                                <i class="fas fa-star me-2"></i>Pilihan Jurusan 1 (Prioritas Utama)
+                            </label>
+                            <select class="form-select @error('major_choice_1') is-invalid @enderror" 
+                                    id="major_choice_1" 
+                                    name="major_choice_1">
+                                <option value="">-- Pilih Jurusan --</option>
+                                <option value="TKR" {{ old('major_choice_1', $student->major_choice_1) == 'TKR' ? 'selected' : '' }}>TKR - Teknik Kendaraan Ringan</option>
+                                <option value="TSM" {{ old('major_choice_1', $student->major_choice_1) == 'TSM' ? 'selected' : '' }}>TSM - Teknik Sepeda Motor</option>
+                                <option value="TKJ" {{ old('major_choice_1', $student->major_choice_1) == 'TKJ' ? 'selected' : '' }}>TKJ - Teknik Komputer Jaringan</option>
+                                <option value="AP" {{ old('major_choice_1', $student->major_choice_1) == 'AP' ? 'selected' : '' }}>AP - Administrasi Perkantoran</option>
+                                <option value="AK" {{ old('major_choice_1', $student->major_choice_1) == 'AK' ? 'selected' : '' }}>AK - Akuntansi</option>
+                            </select>
+                            @error('major_choice_1')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="major_choice_2" class="form-label">
+                                <i class="fas fa-star-half-alt me-2"></i>Pilihan Jurusan 2 (Alternatif)
+                            </label>
+                            <select class="form-select @error('major_choice_2') is-invalid @enderror" 
+                                    id="major_choice_2" 
+                                    name="major_choice_2">
+                                <option value="">-- Pilih Jurusan --</option>
+                                <option value="TKR" {{ old('major_choice_2', $student->major_choice_2) == 'TKR' ? 'selected' : '' }}>TKR - Teknik Kendaraan Ringan</option>
+                                <option value="TSM" {{ old('major_choice_2', $student->major_choice_2) == 'TSM' ? 'selected' : '' }}>TSM - Teknik Sepeda Motor</option>
+                                <option value="TKJ" {{ old('major_choice_2', $student->major_choice_2) == 'TKJ' ? 'selected' : '' }}>TKJ - Teknik Komputer Jaringan</option>
+                                <option value="AP" {{ old('major_choice_2', $student->major_choice_2) == 'AP' ? 'selected' : '' }}>AP - Administrasi Perkantoran</option>
+                                <option value="AK" {{ old('major_choice_2', $student->major_choice_2) == 'AK' ? 'selected' : '' }}>AK - Akuntansi</option>
+                            </select>
+                            @error('major_choice_2')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Catatan:</strong> Pilihan jurusan ini akan digunakan untuk membandingkan dengan hasil rekomendasi sistem setelah perhitungan SPK dilakukan.
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-1"></i>Simpan Pilihan Jurusan
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const majorChoice1 = document.getElementById('major_choice_1');
+    const majorChoice2 = document.getElementById('major_choice_2');
+    
+    // Prevent selecting the same major for both choices
+    function validateChoices() {
+        if (majorChoice1.value && majorChoice2.value && majorChoice1.value === majorChoice2.value) {
+            majorChoice2.setCustomValidity('Pilihan jurusan kedua harus berbeda dengan pilihan pertama.');
+            majorChoice2.classList.add('is-invalid');
+        } else {
+            majorChoice2.setCustomValidity('');
+            majorChoice2.classList.remove('is-invalid');
+        }
+    }
+    
+    majorChoice1.addEventListener('change', validateChoices);
+    majorChoice2.addEventListener('change', validateChoices);
+    
+    // Initial validation
+    validateChoices();
+});
+</script>
 
 <style>
     .border-dashed {

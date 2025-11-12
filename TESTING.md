@@ -295,3 +295,14 @@ Aplikasi sudah dilengkapi dengan data contoh dari seeder:
 
 Testing ini memastikan bahwa sistem SPK berfungsi dengan baik dan memberikan hasil yang akurat untuk rekomendasi jurusan siswa. Semua skenario testing harus dilakukan sebelum aplikasi digunakan dalam produksi.
 
+
+
+
+
+
+
+
+
+
+
+

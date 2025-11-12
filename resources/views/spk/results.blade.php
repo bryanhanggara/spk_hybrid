@@ -17,24 +17,28 @@
 
 <!-- Statistics -->
 <div class="row mb-4">
-    <div class="col-md-6">
-        <div class="card">
+    @foreach($majorStats as $stat)
+    <div class="col-6 col-md-4 col-lg-2 mb-3">
+        <div class="card h-100">
             <div class="card-body text-center">
-                <i class="fas fa-flask fa-3x text-success mb-3"></i>
-                <h3 class="text-success">{{ $ipaCount }}</h3>
-                <p class="text-muted mb-0">Rekomendasi IPA</p>
+                @if($stat['code'] == 'TKR')
+                    <i class="fas fa-car fa-2x text-primary mb-2"></i>
+                @elseif($stat['code'] == 'TSM')
+                    <i class="fas fa-motorcycle fa-2x text-success mb-2"></i>
+                @elseif($stat['code'] == 'TKJ')
+                    <i class="fas fa-laptop-code fa-2x text-info mb-2"></i>
+                @elseif($stat['code'] == 'AP')
+                    <i class="fas fa-briefcase fa-2x text-warning mb-2"></i>
+                @elseif($stat['code'] == 'AK')
+                    <i class="fas fa-calculator fa-2x text-danger mb-2"></i>
+                @endif
+                <h4 class="mb-1">{{ $stat['count'] }}</h4>
+                <p class="text-muted mb-0 small fw-bold">{{ $stat['code'] }}</p>
+                <p class="text-muted mb-0" style="font-size: 0.7rem;">{{ Str::limit($stat['name'], 20) }}</p>
             </div>
         </div>
     </div>
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-body text-center">
-                <i class="fas fa-book fa-3x text-info mb-3"></i>
-                <h3 class="text-info">{{ $ipsCount }}</h3>
-                <p class="text-muted mb-0">Rekomendasi IPS</p>
-            </div>
-        </div>
-    </div>
+    @endforeach
 </div>
 
 <!-- Chart -->
@@ -77,6 +81,7 @@
                                 <th>Nama Siswa</th>
                                 <th>NISN</th>
                                 <th>Kelas</th>
+                                <th>Pilihan Siswa</th>
                                 <th>Rekomendasi</th>
                                 <th>Skor SAW</th>
                                 <th>Skor VIKOR</th>
@@ -86,6 +91,15 @@
                         </thead>
                         <tbody>
                             @foreach($results as $result)
+                            @php
+                                $student = $result->student;
+                                $matches = false;
+                                if ($student->major_choice_1 && $result->recommended_major == $student->major_choice_1) {
+                                    $matches = true;
+                                } elseif ($student->major_choice_2 && $result->recommended_major == $student->major_choice_2) {
+                                    $matches = true;
+                                }
+                            @endphp
                             <tr>
                                 <td>
                                     <span class="badge bg-primary fs-6">#{{ $result->rank }}</span>
@@ -94,9 +108,38 @@
                                 <td>{{ $result->student->nisn }}</td>
                                 <td>{{ $result->student->class }}</td>
                                 <td>
-                                    <span class="badge {{ $result->recommended_major == 'IPA' ? 'badge-ipa' : 'badge-ips' }}">
+                                    @if($student->major_choice_1 || $student->major_choice_2)
+                                        <div>
+                                            @if($student->major_choice_1)
+                                                <span class="badge bg-primary">1. {{ $student->major_choice_1 }}</span>
+                                            @endif
+                                            @if($student->major_choice_2)
+                                                <span class="badge bg-secondary">2. {{ $student->major_choice_2 }}</span>
+                                            @endif
+                                        </div>
+                                        @if($matches)
+                                            <small class="text-success"><i class="fas fa-check-circle"></i> Cocok</small>
+                                        @else
+                                            <small class="text-warning"><i class="fas fa-info-circle"></i> Berbeda</small>
+                                        @endif
+                                    @else
+                                        <span class="text-muted">-</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    @php
+                                        $badgeClass = 'bg-secondary';
+                                        if($result->recommended_major == 'TKR') $badgeClass = 'bg-primary';
+                                        elseif($result->recommended_major == 'TSM') $badgeClass = 'bg-success';
+                                        elseif($result->recommended_major == 'TKJ') $badgeClass = 'bg-info';
+                                        elseif($result->recommended_major == 'AP') $badgeClass = 'bg-warning';
+                                        elseif($result->recommended_major == 'AK') $badgeClass = 'bg-danger';
+                                    @endphp
+                                    <span class="badge {{ $badgeClass }}">
                                         {{ $result->recommended_major }}
                                     </span>
+                                    <br>
+                                    <small class="text-muted">{{ $majorStats[$result->recommended_major]['name'] ?? '' }}</small>
                                 </td>
                                 <td>{{ number_format($result->saw_score, 4) }}</td>
                                 <td>{{ number_format($result->vikor_score, 4) }}</td>
@@ -124,15 +167,19 @@
 <script>
 // Chart untuk distribusi jurusan
 const ctx1 = document.getElementById('majorChart').getContext('2d');
+const majorChartData = @json($majorStats);
 const majorChart = new Chart(ctx1, {
     type: 'doughnut',
     data: {
-        labels: ['IPA', 'IPS'],
+        labels: Object.values(majorChartData).map(stat => stat.code + ' - ' + stat.name),
         datasets: [{
-            data: [{{ $ipaCount }}, {{ $ipsCount }}],
+            data: Object.values(majorChartData).map(stat => stat.count),
             backgroundColor: [
-                '#28a745',
-                '#17a2b8'
+                '#007bff', // TKR - Blue
+                '#28a745', // TSM - Green
+                '#17a2b8', // TKJ - Cyan
+                '#ffc107', // AP - Yellow
+                '#dc3545'  // AK - Red
             ],
             borderWidth: 2,
             borderColor: '#fff'
@@ -143,7 +190,12 @@ const majorChart = new Chart(ctx1, {
         maintainAspectRatio: false,
         plugins: {
             legend: {
-                position: 'bottom'
+                position: 'bottom',
+                labels: {
+                    font: {
+                        size: 10
+                    }
+                }
             }
         }
     }

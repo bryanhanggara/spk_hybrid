@@ -244,3 +244,14 @@ private function calculateVikor(float $ipaScore, float $ipsScore): array
 3. **Validation**: Validasi dengan metode lain
 4. **Documentation**: Dokumentasi lengkap perhitungan
 
+
+
+
+
+
+
+
+
+
+
+

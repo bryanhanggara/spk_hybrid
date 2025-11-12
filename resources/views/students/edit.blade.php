@@ -115,6 +115,44 @@
                         @enderror
                     </div>
                     
+                    <div class="mb-3">
+                        <label for="major_choice_1" class="form-label">
+                            <i class="fas fa-star me-2"></i>Pilihan Jurusan 1 (Prioritas Utama)
+                        </label>
+                        <select class="form-select @error('major_choice_1') is-invalid @enderror" 
+                                id="major_choice_1" 
+                                name="major_choice_1">
+                            <option value="">-- Pilih Jurusan --</option>
+                            <option value="TKR" {{ old('major_choice_1', $student->major_choice_1) == 'TKR' ? 'selected' : '' }}>TKR - Teknik Kendaraan Ringan</option>
+                            <option value="TSM" {{ old('major_choice_1', $student->major_choice_1) == 'TSM' ? 'selected' : '' }}>TSM - Teknik Sepeda Motor</option>
+                            <option value="TKJ" {{ old('major_choice_1', $student->major_choice_1) == 'TKJ' ? 'selected' : '' }}>TKJ - Teknik Komputer Jaringan</option>
+                            <option value="AP" {{ old('major_choice_1', $student->major_choice_1) == 'AP' ? 'selected' : '' }}>AP - Administrasi Perkantoran</option>
+                            <option value="AK" {{ old('major_choice_1', $student->major_choice_1) == 'AK' ? 'selected' : '' }}>AK - Akuntansi</option>
+                        </select>
+                        @error('major_choice_1')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="major_choice_2" class="form-label">
+                            <i class="fas fa-star-half-alt me-2"></i>Pilihan Jurusan 2 (Alternatif)
+                        </label>
+                        <select class="form-select @error('major_choice_2') is-invalid @enderror" 
+                                id="major_choice_2" 
+                                name="major_choice_2">
+                            <option value="">-- Pilih Jurusan --</option>
+                            <option value="TKR" {{ old('major_choice_2', $student->major_choice_2) == 'TKR' ? 'selected' : '' }}>TKR - Teknik Kendaraan Ringan</option>
+                            <option value="TSM" {{ old('major_choice_2', $student->major_choice_2) == 'TSM' ? 'selected' : '' }}>TSM - Teknik Sepeda Motor</option>
+                            <option value="TKJ" {{ old('major_choice_2', $student->major_choice_2) == 'TKJ' ? 'selected' : '' }}>TKJ - Teknik Komputer Jaringan</option>
+                            <option value="AP" {{ old('major_choice_2', $student->major_choice_2) == 'AP' ? 'selected' : '' }}>AP - Administrasi Perkantoran</option>
+                            <option value="AK" {{ old('major_choice_2', $student->major_choice_2) == 'AK' ? 'selected' : '' }}>AK - Akuntansi</option>
+                        </select>
+                        @error('major_choice_2')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    
                     <div class="d-flex justify-content-end gap-2 mt-4">
                         <a href="{{ route('students.show', $student->id) }}" class="btn btn-outline-secondary">
                             <i class="fas fa-times me-1"></i>Batal
@@ -147,6 +185,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Add validation feedback
     const form = document.querySelector('form');
     const inputs = form.querySelectorAll('input[type="text"], input[type="radio"]');
+    const majorChoice1 = document.getElementById('major_choice_1');
+    const majorChoice2 = document.getElementById('major_choice_2');
     
     inputs.forEach(input => {
         input.addEventListener('blur', function() {
@@ -155,6 +195,23 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+    
+    // Prevent selecting the same major for both choices
+    function validateChoices() {
+        if (majorChoice1 && majorChoice2 && majorChoice1.value && majorChoice2.value && majorChoice1.value === majorChoice2.value) {
+            majorChoice2.setCustomValidity('Pilihan jurusan kedua harus berbeda dengan pilihan pertama.');
+            majorChoice2.classList.add('is-invalid');
+        } else if (majorChoice2) {
+            majorChoice2.setCustomValidity('');
+            majorChoice2.classList.remove('is-invalid');
+        }
+    }
+    
+    if (majorChoice1 && majorChoice2) {
+        majorChoice1.addEventListener('change', validateChoices);
+        majorChoice2.addEventListener('change', validateChoices);
+        validateChoices();
+    }
     
     form.addEventListener('submit', function(e) {
         const name = document.getElementById('name').value.trim();
@@ -184,6 +241,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 radio.closest('.border').classList.add('border-danger');
             });
             isValid = false;
+        }
+        
+        // Validate major choices
+        if (majorChoice1 && majorChoice2) {
+            validateChoices();
+            if (!majorChoice2.checkValidity()) {
+                isValid = false;
+            }
         }
         
         if (!isValid) {

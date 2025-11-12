@@ -74,11 +74,18 @@ class SpkController extends Controller
             ->orderBy('rank')
             ->get();
 
-        // Statistik
-        $ipaCount = $results->where('recommended_major', 'IPA')->count();
-        $ipsCount = $results->where('recommended_major', 'IPS')->count();
+        // Statistik untuk semua jurusan SMK
+        $majorStats = [];
+        $majors = $this->sawVikorService->getMajors();
+        foreach ($majors as $code => $name) {
+            $majorStats[$code] = [
+                'code' => $code,
+                'name' => $name,
+                'count' => $results->where('recommended_major', $code)->count()
+            ];
+        }
 
-        return view('spk.results', compact('results', 'ipaCount', 'ipsCount'));
+        return view('spk.results', compact('results', 'majorStats'));
     }
 
     /**
@@ -95,7 +102,8 @@ class SpkController extends Controller
                 ->with('error', 'Data tidak ditemukan');
         }
 
-        return view('spk.detail', compact('result'));
+        $majors = $this->sawVikorService->getMajors();
+        return view('spk.detail', compact('result', 'majors'));
     }
 
     /**
@@ -107,10 +115,21 @@ class SpkController extends Controller
             ->groupBy('recommended_major')
             ->get();
 
+        $majors = $this->sawVikorService->getMajors();
+        
+        // Pastikan semua jurusan ada di chart, bahkan jika count = 0
         $chartData = [
-            'labels' => $results->pluck('recommended_major')->toArray(),
-            'data' => $results->pluck('count')->toArray()
+            'labels' => [],
+            'data' => [],
+            'full_names' => []
         ];
+        
+        foreach ($majors as $code => $name) {
+            $result = $results->firstWhere('recommended_major', $code);
+            $chartData['labels'][] = $code;
+            $chartData['full_names'][] = $name;
+            $chartData['data'][] = $result ? $result->count : 0;
+        }
 
         return response()->json($chartData);
     }
@@ -130,6 +149,7 @@ class SpkController extends Controller
                 'rank' => $result->rank,
                 'name' => $result->student->name,
                 'major' => $result->recommended_major,
+                'major_name' => $this->sawVikorService->getMajorName($result->recommended_major),
                 'score' => round($result->final_score, 4)
             ];
         });

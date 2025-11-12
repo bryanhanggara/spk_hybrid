@@ -389,3 +389,14 @@ Sistem SPK ini dirancang untuk memudahkan proses rekomendasi jurusan siswa denga
 
 Untuk pertanyaan lebih lanjut atau bantuan teknis, silakan hubungi tim support.
 
+
+
+
+
+
+
+
+
+
+
+

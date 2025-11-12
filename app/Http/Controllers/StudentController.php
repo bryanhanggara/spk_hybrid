@@ -74,10 +74,12 @@ class StudentController extends Controller
             'name' => 'required|string|max:255',
             'nisn' => 'required|string|unique:students,nisn,' . $student->id,
             'class' => 'required|string|max:50',
-            'gender' => 'required|in:L,P'
+            'gender' => 'required|in:L,P',
+            'major_choice_1' => 'nullable|in:TKR,TSM,TKJ,AP,AK',
+            'major_choice_2' => 'nullable|in:TKR,TSM,TKJ,AP,AK'
         ]);
 
-        $student->update($request->only(['name', 'nisn', 'class', 'gender']));
+        $student->update($request->only(['name', 'nisn', 'class', 'gender', 'major_choice_1', 'major_choice_2']));
 
         return redirect()->route('students.show', $student->id)
             ->with('success', 'Data siswa berhasil diperbarui');
@@ -139,7 +141,7 @@ class StudentController extends Controller
     public function storeInterest(Request $request, Student $student)
     {
         $request->validate([
-            'answers' => 'required|array',
+            'answers' => 'required|array|size:20',
             'answers.*' => 'required|integer|min:1|max:5'
         ]);
 
@@ -199,5 +201,26 @@ class StudentController extends Controller
 
         return redirect()->route('students.show', $student->id)
             ->with('success', 'Hasil wawancara berhasil disimpan');
+    }
+
+    /**
+     * Simpan pilihan jurusan siswa
+     */
+    public function storeMajorChoice(Request $request, Student $student)
+    {
+        $request->validate([
+            'major_choice_1' => 'nullable|in:TKR,TSM,TKJ,AP,AK',
+            'major_choice_2' => 'nullable|in:TKR,TSM,TKJ,AP,AK|different:major_choice_1'
+        ], [
+            'major_choice_2.different' => 'Pilihan jurusan kedua harus berbeda dengan pilihan pertama.'
+        ]);
+
+        $student->update([
+            'major_choice_1' => $request->input('major_choice_1'),
+            'major_choice_2' => $request->input('major_choice_2')
+        ]);
+
+        return redirect()->route('students.show', $student->id)
+            ->with('success', 'Pilihan jurusan berhasil disimpan');
     }
 }

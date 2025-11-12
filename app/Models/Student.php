@@ -15,7 +15,9 @@ class Student extends Model
         'name',
         'nisn',
         'class',
-        'gender'
+        'gender',
+        'major_choice_1',
+        'major_choice_2'
     ];
 
     public function academicScore(): HasOne
