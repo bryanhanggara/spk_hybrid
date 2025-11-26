@@ -255,3 +255,6 @@ private function calculateVikor(float $ipaScore, float $ipsScore): array
 
 
 
+
+
+
